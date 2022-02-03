@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>锅打灰太郎</title>
+	<!-- <script scr="js/jquery-1.12.3.js"></script>     //scr是错误写法 -->
+	<script src="js/jquery-1.12.3.js"></script>
+<style>
+	*{margin:0; padding:0;}
+/* 底片 */
+	.dipian{
+		width:320px;
+		height:480px;
+		background:url(htl/game_bg.jpg) no-repeat 0 0;
+		margin:50px auto;
+		position: relative;
+	}
+/* 分数 */
+	h1{
+		font-size: 30px;
+		color:white;
+		margin-left: 65px;
+	}
+/* 进度条 */
+	#progress{
+		width: 180px;
+		height: 16px;
+		background:url(htl/progress.png) no-repeat 0 0;
+		position: absolute;
+		top: 66px;
+		left: 63px;
+	}
+/* 游戏开始画面 */
+	.start{
+		width: 150px;
+		line-height: 35px;
+		text-align: center;
+		color: white;
+		background: linear-gradient(#E55c3D,#c50000);
+		border-radius: 20px;
+		border: none;
+		font-size: 20px;
+		position: absolute;
+		left: 50%;
+		margin-left: -75px;
+		top: 320px;		
+	}
+/* 规则画面 */
+	.rules{
+		width: 100%;
+		height: 20px;
+		background-color: #ccc;
+		position: absolute;
+		left: 0;
+		bottom: 0;
+		text-align: center;
+	}
+	.rule{
+		width: 100%;
+		height: 100%;
+		background: rgba(0,0,0,0.5);
+		position: absolute;
+		left: 0;
+		top: 0;
+		padding-top: 100px;
+		box-sizing: border-box;
+		text-align: center;
+		display: none;
+	}
+	.rule>p{
+		color: white;
+		line-height:50px;
+		font-size: 20px;
+	}
+	.rule>a{
+		color: #C50000;
+		font-size: 22px;
+	}
+/* 重新开始画面 */
+	.mask{
+		width: 100%;
+		height: 100%;
+		background: rgba(0,0,0,0.5);
+		position: absolute;
+		left: 0;
+		top: 0;
+		padding-top: 200px;
+		box-sizing: border-box;
+		text-align: center;
+		display: none;
+	}
+   /* 	GAME OVER文字 */
+	.mask>h2{
+		color: #E55C3D;
+		text-shadow: 3px 3px 0 #fff;
+		font-size: 40px;
+	}
+	.mask>button{
+		width: 150px;
+		line-height: 35px;
+		text-align: center;
+		color: white;
+		background: linear-gradient(#74ACCF,#007DDC);
+		border-radius: 20px;
+		border: none;
+		font-size: 20px;
+		position: absolute;
+		left: 50%;
+		margin-left: -75px;
+		top: 320px;		
+	}
+</style>
+<script type="text/javascript">
+	window.onload = function() {
+		
+	};
+	$(function () {
+	  // 1点击游戏规则
+	  $(".rules").click(function(){
+			$(".rule").stop().fadeIn(500);
+		  });
+	  // 2点击规则关闭
+	  $(".close").click(function(){
+	  		$(".rule").stop().fadeOut(500);
+		  });
+	  //3点击开始按钮
+	  $(".start").click(function(){
+	  		$(this).stop().fadeOut(500);  	 
+		  //启动进度条 
+		    progressHandler();//启动进度条
+			wolfAnimation()   //启动动画
+	   });
+	  //4点击重新开始按钮
+	  $(".reStart").click(function(){
+			$(".mask").stop().fadeOut(100); 
+			progressHandler();   
+			wolfAnimation()   //启动动画	 
+		});
+
+	   //定义进度条函数
+	   function progressHandler(){
+//这里不能写180px
+		   $("#progress").css({width:180});             //重新开始时进度条应该是满的
+	   		   var timer=setInterval(function(){   
+	   			   var progressWidth=$("#progress").width();      //当前进度.ID用#
+	   			   progressWidth =progressWidth-1;                //每100ms减1
+//css书式，属性要用{}	   			   
+				   $("#progress").css({                           
+	   				   width:progressWidth                        //赋值给进度条新进度
+	   			   });
+	   			   if(progressWidth<=0){                          //进度条为0时
+					   clearInterval(timer);                            //清计算器
+					   $(".mask").stop().fadeIn(100);                   //显示重新开始按钮
+				       stopAnimation();
+				   }
+	   		   }, 100); 
+	   }    
+	   
+	   var wolfTimer;   //提出来的目的是其他函数中可以停止它
+	   //定义动画函数	   
+	   function wolfAnimation(){
+	        //把灰太郎放一个数组里
+			var wolf1=['htl/h0.png','htl/h1.png','htl/h2.png','htl/h3.png','htl/h4.png','htl/h5.png','htl/h6.png','htl/h7.png','htl/h8.png','htl/h9.png'];
+			//把灰小宝放一个数组里
+			var wolf2=['htl/y0.png','htl/y1.png','htl/y2.png','htl/y3.png','htl/y4.png','htl/y5.png','htl/y6.png','htl/y7.png','htl/y8.png','htl/y9.png'];   
+	        //坑的位置
+			var arrPos=[
+				{left:"100px",top:"115px"},{left:"20px",top:"160px"},{left:"190px",top:"142px"},
+				{left:"105px",top:"193px"},{left:"19px",top:"221px"},{left:"202px",top:"212px"},
+				{left:"120px",top:"275px"},{left:"30px",top:"295px"},{left:"209px",top:"297px"}
+			];
+			//生成图（贴图纸）、图的内容（要贴的图）、贴的位置。贴上
+			var $wolfImage=$("<img src=''  class='wolfImage'>");
+//class要写<>内			
+			//写死
+			// $wolfImage.attr("src",  wolf2[9]);
+			// $wolfImage.css({
+			//		position:"absolute",
+			//		left:100,
+			//		top:115
+			// 	});
+			   //贴的位置: 随机取坑
+			var posIndex=Math.round(Math.random()*8);   //取0-8的乱数
+			$wolfImage.css({                            //用乱数随机取坑位     
+				position:"absolute",
+				left:arrPos[posIndex].left,
+				top:arrPos[posIndex].top
+				});
+			   //要贴的图: 随机取图的类型	。乱数是0时取第一组，否则第二组
+			var wolfType=Math.round(Math.random())==0 ? wolf1 : wolf2;
+			   //要贴的图: 上一步取的类型中的图实现动画
+			window.wolfIndex=0;                      //全局变量，为锅打做准备    
+			window.wolfIndexEnd=5;
+			wolfTimer=setInterval(function(){
+				if(wolfIndex > wolfIndexEnd){         //前5张是无拍打动画
+					$wolfImage.remove();              //消除（缩回去了）
+					clearInterval(wolfTimer);         //关闭定时器
+					wolfAnimation();                  //继续下一个动画
+				}
+				$wolfImage.attr("src",  wolfType[wolfIndex]);	
+				wolfIndex++;
+			},300);			
+			$(".dipian").append($wolfImage);
+			//打分,点不同的image就得不同的分，所以用wolfImage作参数
+			dafen($wolfImage);
+	   }
+	   //定义停止动画函数
+	   function stopAnimation(){
+		   $(".wolfImage").remove();
+		   clearInterval(wolfTimer);
+	   }
+	   //定义打分函数
+//注意下一般函数和click函数的区别，一般：function 名(){}。点击：click(function(){...});
+	   function dafen($wolfImage){
+		   //$wolfImage.click(function(){ 
+		     $wolfImage.one("click",function(){
+				 window.wolfIndex=5;
+				 window.wolfIndexEnd=9;
+			     var $src=$(this).attr("src");     //取得被点击者的地址
+			     var flag=$src.indexOf("y") >=0;   //看src中有y没有，-1是false
+			     if(flag){$(".score").text(parseInt($(".score").text())-10);}
+			     else{$(".score").text(parseInt($(".score").text())+10);}
+		   });
+	   }
+	   
+	});
+</script>
+</head>
+<body>
+<div class="dipian"><div>
+	<h1 class="score">0</h1>
+	<div id="progress"></div>
+	<button class="start">开始游戏</button>
+	<div class="rules">游戏规则</div>
+		<div class="rule">
+			<p>*游戏规则*</p>
+			<p>1.游戏时间: 60秒</p>
+			<p>2.打灰太狼+10分</p>
+			<p>3.打到小宝-10分</p>
+			<a href="#" class="close">[Close]</a>		
+		</div>
+	<div class="mask">
+		<h2>GAME OVER</h2>
+		<button class="reStart">重新开始</button>
+		
+	</div>
+
+</body>
+
+</html>
